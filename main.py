@@ -202,6 +202,7 @@ def dashboard():
 
     staffSizes = ['A', 'B', 'C', 'D', 'E']
     select_result = db.session.query(Companies.sizeofstaff, db.func.count()).select_from(CompanyMigration).join(Companies, CompanyMigration.companyid == Companies.id).group_by(Companies.sizeofstaff)
+    select_result2 = db.session.query(Companies.city, db.func.count()).select_from(CompanyMigration).join(Companies, CompanyMigration.companyid == Companies.id).group_by(Companies.city)
 
     migrationsAmount = [0, 0, 0, 0, 0]
 
@@ -209,7 +210,14 @@ def dashboard():
         staffSize = s[0]
         migrationsAmount[staffSizes.index(staffSize)] = s[1]
     
+    cities = []
+    migrations = []
+    for s in select_result2.all():
+        cities.append(s[0])
+        migrations.append(s[1])
+    
     graph = go.Figure([go.Bar(x=staffSizes, y=migrationsAmount)])
+    graph2 = go.Figure([go.Bar(x=cities, y=migrations)])
 
     # bar, pie = go.Bar(x=codes, y=counting_stars, marker=dict(color='rgb(122, 122, 122)'))
 
@@ -217,9 +225,9 @@ def dashboard():
     # ids = ["1", "2"]
 
     graphJSON1 = json.dumps(graph, cls=plotly.utils.PlotlyJSONEncoder)
-    # graphJSON2 = json.dumps(data2, cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON2 = json.dumps(graph2, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template('dashboard.html', graphJSON1=graphJSON1)
+    return render_template('dashboard.html', graphJSON1=graphJSON1, graphJSON2 = graphJSON2)
 
 
 if __name__ == '__main__':
